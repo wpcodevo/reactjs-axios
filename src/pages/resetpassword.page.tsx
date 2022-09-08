@@ -5,29 +5,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "../components/FormInput";
 import { LoadingButton } from "../components/LoadingButton";
 import { toast } from "react-toastify";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import useStore from "../store";
-import { ILoginResponse } from "../api/types";
 import { authApi } from "../api/authApi";
+import { GenericResponse } from "../api/types";
 
-const loginSchema = object({
-  email: string()
-    .min(1, "Email address is required")
-    .email("Email Address is invalid"),
-  password: string()
-    .min(1, "Password is required")
-    .min(8, "Password must be more than 8 characters")
-    .max(32, "Password must be less than 32 characters"),
+const resetPasswordSchema = object({
+  password: string().min(1, "Current password is required"),
+  passwordConfirm: string().min(1, "Please confirm your password"),
 });
 
-export type LoginInput = TypeOf<typeof loginSchema>;
+export type ResetPasswordInput = TypeOf<typeof resetPasswordSchema>;
 
-const LoginPage = () => {
+const ResetPasswordPage = () => {
   const store = useStore();
   const navigate = useNavigate();
+  const { resetCode } = useParams();
 
-  const methods = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  const methods = useForm<ResetPasswordInput>({
+    resolver: zodResolver(resetPasswordSchema),
   });
 
   const {
@@ -43,12 +39,18 @@ const LoginPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSubmitSuccessful]);
 
-  const loginUser = async (data: LoginInput) => {
+  const resetPassword = async (data: ResetPasswordInput) => {
     try {
       store.setRequestLoading(true);
-      await authApi.post<ILoginResponse>("/auth/login", data);
+      const response = await authApi.patch<GenericResponse>(
+        `auth/resetpassword/${resetCode}`,
+        data
+      );
       store.setRequestLoading(false);
-      navigate("/profile");
+      toast.success(response.data.message as string, {
+        position: "top-right",
+      });
+      navigate("/login");
     } catch (error: any) {
       store.setRequestLoading(false);
       const resMessage =
@@ -63,43 +65,38 @@ const LoginPage = () => {
     }
   };
 
-  const onSubmitHandler: SubmitHandler<LoginInput> = (values) => {
-    loginUser(values);
+  const onSubmitHandler: SubmitHandler<ResetPasswordInput> = (values) => {
+    if (resetCode) {
+      resetPassword(values);
+    } else {
+      toast.error("Please provide the password reset code", {
+        position: "top-right",
+      });
+    }
   };
   return (
     <section className="bg-ct-blue-600 min-h-screen grid place-items-center">
       <div className="w-full">
-        <h1 className="text-4xl xl:text-6xl text-center font-[600] text-ct-yellow-600 mb-4">
-          Welcome Back
+        <h1 className="text-4xl xl:text-6xl text-center font-[600] text-ct-yellow-600 mb-7">
+          Reset Password
         </h1>
-        <h2 className="text-lg text-center mb-4 text-ct-dark-200">
-          Login to have access
-        </h2>
         <FormProvider {...methods}>
           <form
             onSubmit={handleSubmit(onSubmitHandler)}
             className="max-w-md w-full mx-auto overflow-hidden shadow-lg bg-ct-dark-200 rounded-2xl p-8 space-y-5"
           >
-            <FormInput label="Email" name="email" type="email" />
-            <FormInput label="Password" name="password" type="password" />
-
-            <div className="text-right">
-              <Link to="/forgotpassword" className="">
-                Forgot Password?
-              </Link>
-            </div>
+            <FormInput label="New Password" name="password" type="password" />
+            <FormInput
+              label="Confirm Password"
+              name="passwordConfirm"
+              type="password"
+            />
             <LoadingButton
               loading={store.requestLoading}
               textColor="text-ct-blue-600"
             >
-              Login
+              Reset Password
             </LoadingButton>
-            <span className="block">
-              Need an account?{" "}
-              <Link to="/register" className="text-ct-blue-600">
-                Sign Up Here
-              </Link>
-            </span>
           </form>
         </FormProvider>
       </div>
@@ -107,4 +104,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ResetPasswordPage;

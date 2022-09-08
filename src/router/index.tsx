@@ -1,37 +1,47 @@
-import type { RouteObject } from 'react-router-dom';
-import Layout from '../components/Layout';
-import EmailVerificationPage from '../pages/emailverification.page';
-import HomePage from '../pages/home.page';
-import LoginPage from '../pages/login.page';
-import ProfilePage from '../pages/profile.page';
-import RegisterPage from '../pages/register.page';
+import type { RouteObject } from "react-router-dom";
+import Layout from "../components/Layout";
+import EmailVerificationPage from "../pages/emailverification.page";
+import ForgotPasswordPage from "../pages/forgotpassword.page";
+import HomePage from "../pages/home.page";
+import LoginPage from "../pages/login.page";
+import ProfilePage from "../pages/profile.page";
+import RegisterPage from "../pages/register.page";
+import ResetPasswordPage from "../pages/resetpassword.page";
 
 const authRoutes: RouteObject = {
-  path: '*',
+  path: "*",
   children: [
     {
-      path: 'login',
+      path: "login",
       element: <LoginPage />,
     },
     {
-      path: 'register',
+      path: "register",
       element: <RegisterPage />,
     },
     {
-      path: 'verifyemail',
+      path: "verifyemail",
       element: <EmailVerificationPage />,
       children: [
         {
-          path: ':verificationCode',
+          path: ":verificationCode",
           element: <EmailVerificationPage />,
         },
       ],
+    },
+    {
+      path: "forgotpassword",
+      element: <ForgotPasswordPage />,
+    },
+    {
+      path: "resetpassword/:resetCode",
+      element: <ResetPasswordPage />,
     },
   ],
 };
 
 const normalRoutes: RouteObject = {
-  path: '*',
+  path: "*",
   element: <Layout />,
   children: [
     {
@@ -39,10 +49,10 @@ const normalRoutes: RouteObject = {
       element: <HomePage />,
     },
     {
-      path: 'profile',
+      path: "profile",
       children: [
         {
-          path: '',
+          path: "",
           element: <ProfilePage />,
         },
       ],
