@@ -1,4 +1,4 @@
-import { object, string, TypeOf, z } from "zod";
+import { object, string, TypeOf } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import { useEffect } from "react";
@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { authApi } from "../api/authApi";
 import { GenericResponse } from "../api/types";
-import axios from "axios";
 import useStore from "../store";
 
 const registerSchema = object({

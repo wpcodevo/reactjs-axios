@@ -1,12 +1,13 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { authApi } from "../api/authApi";
 import { IUserResponse } from "../api/types";
-import Spinner from "../components/Spinner";
 import useStore from "../store";
 
 const ProfilePage = () => {
   const store = useStore();
+  const navigate = useNavigate();
 
   const getUser = async () => {
     try {
@@ -25,6 +26,7 @@ const ProfilePage = () => {
       toast.error(resMessage, {
         position: "top-right",
       });
+      navigate("/login");
     }
   };
 
